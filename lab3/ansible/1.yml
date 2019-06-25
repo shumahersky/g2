@@ -1,0 +1,34 @@
+- name: Install PHP+nginx
+  hosts: web
+  become: true
+  tasks:
+  - name: install nginx2
+    yum:
+    name: epel-release
+     state:latest
+  - name: install nginx
+    yum: 
+    name: nginx
+     state:latest
+  - name: install php
+    apt: 
+    name: php5-cli
+    name: php5-fpm
+     state:latest
+
+  - name: Insert Index Page
+    template:
+     src: ./index.php
+     dest: /var/www
+
+  - name: Configure nginx
+    template:
+     src: ./nginx.conf
+     dest: /etc/nginx/conf.d
+  handlers:
+    - name: restart php5-fpm
+      service: name=php5-fpm state=restarted
+
+    - name: restart nginx
+      service: name=nginx state=restarted
+
