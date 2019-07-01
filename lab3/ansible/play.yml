@@ -1,0 +1,42 @@
+---
+- name: Install PHP
+  hosts: test
+  become: true
+ 
+
+  tasks:
+
+  - name: Install packages
+    yum: 
+     name: ['nginx', 'php', 'php-fpm', 'php-common',]
+     update_cache: yes
+     state: latest
+
+  - name: Insert Index Page
+    template:
+      src: index.php
+      dest: /var/www
+
+  - name: Insert config for PHP
+    template:
+      src: index.conf
+      dest: /etc/nginx/conf.d
+
+  - name: Configure nginx
+    template: src=nginx.conf dest=/etc/nginx
+    notify:
+    - restart php5-fpm
+    - restart nginx
+    
+  - name: Start NGiNX
+    service:
+      name: nginx
+      state: started
+      enabled: yes
+
+  handlers:
+    - name: restart php-fpm
+      service: name=php-fpm state=restarted
+
+    - name: restart nginx
+      service: name=nginx state=restarted
